@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.helperapplication">
+    package="com.example.helperapplication"
+    coreApp="true">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -41,6 +42,8 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -66,10 +69,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HelperApplication"
         tools:targetApi="31">
-        <service
-            android:name=".services.ProcessStatsService"
-            android:enabled="true"
-            android:exported="true"></service>
         <service
             android:name=".services.MemoryUsageService"
             android:enabled="true"

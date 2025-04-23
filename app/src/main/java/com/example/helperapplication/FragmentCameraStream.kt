@@ -9,12 +9,16 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.view.TextureView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.helperapplication.services.CameraStreamService
+import android.Manifest
+import androidx.core.content.ContextCompat
 
 class FragmentCameraStream : Fragment() {
     private var cameraService: CameraStreamService? = null
@@ -23,6 +27,8 @@ class FragmentCameraStream : Fragment() {
     private lateinit var cameraSpinner: Spinner
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
+
+    private val CAMERA_PERMISSION_CODE = 101
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -44,24 +50,51 @@ class FragmentCameraStream : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_camera_stream, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         textureView = view.findViewById(R.id.textureView)
         cameraSpinner = view.findViewById(R.id.cameraSelectorSpinner)
         startButton = view.findViewById(R.id.startStreamButton)
         stopButton = view.findViewById(R.id.stopStreamButton)
 
         startButton.setOnClickListener {
-            val selectedCameraId = cameraSpinner.selectedItem?.toString()
-            if (isBound && textureView.isAvailable) {
-                cameraService?.startCameraStream(selectedCameraId, textureView.surfaceTexture!!)
-            }
+            checkCameraPermissionAndStartStream()
         }
 
         stopButton.setOnClickListener {
             if (isBound) {
                 cameraService?.stopCameraStream()
+            }
+        }
+    }
+
+    private fun checkCameraPermissionAndStartStream() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+        } else {
+            startCameraStream()
+        }
+    }
+
+    private fun startCameraStream() {
+        val selectedCameraId = cameraSpinner.selectedItem?.toString()
+        if (isBound && textureView.isAvailable) {
+            cameraService?.startCameraStream(selectedCameraId, textureView.surfaceTexture)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCameraStream()
+            } else {
+                Toast.makeText(requireContext(), "Camera permission is required", Toast.LENGTH_SHORT).show()
             }
         }
     }

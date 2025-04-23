@@ -1,6 +1,5 @@
 package com.example.helperapplication
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -57,7 +56,7 @@ class FragmentServices : Fragment(){
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
-    @SuppressLint("ResourceType")
+
     private fun initServiceSpinner(serviceSpinner: Spinner, serviceNames: List<String>) {
         val serviceAdapter = ArrayAdapter(requireContext(), R.layout.selected_item_spinner, serviceNames)
         serviceAdapter.setDropDownViewResource(R.layout.item_spinner)
@@ -107,7 +106,7 @@ class FragmentServices : Fragment(){
             )
         }
 
-        val method = service.javaClass.methods.firstOrNull { it.name == methodName }
+        val method = service.javaClass.methods.first { it.name == methodName }
         val paramValues = mutableListOf<EditText>()
 
         rowLayout.addView(methodTextView)
@@ -162,9 +161,10 @@ class FragmentServices : Fragment(){
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createCallButton(
         methodName: String, paramValues: List<EditText>, service: Any,
-        method: Method?, resultContainer: LinearLayout, scrollView: ScrollView,
+        method: Method, resultContainer: LinearLayout, scrollView: ScrollView,
         selectedServiceName: String
     ): Button {
         return Button(requireContext()).apply {
@@ -178,10 +178,10 @@ class FragmentServices : Fragment(){
             setOnClickListener {
                 try {
                     val params = paramValues.mapIndexed { index, editText ->
-                        ConverterHelperService.convertParameter(method!!.parameters[index], editText.text.toString())
+                        ConverterHelperService.convertParameter(method.parameters[index], editText.text.toString())
                     }.toTypedArray()
 
-                    val result = method?.invoke(service, *params)
+                    val result = method.invoke(service, *params)
                     displayResult(resultContainer, scrollView, selectedServiceName.uppercase(), methodName, params.joinToString(", "), result)
                 } catch (e: Exception) {
                     displayResult(resultContainer, scrollView, selectedServiceName.uppercase(), methodName, "", "Error: ${e.message}")

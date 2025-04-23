@@ -9,7 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.helperapplication.services.MemoryUsageService
-import com.example.helperapplication.services.ProcessStatsService
+import com.example.helperapplication.services.ProcessHelperService
 
 class FragmentMemoryUsage : Fragment(){
     private lateinit var memInfoTextView: TextView
@@ -72,6 +72,7 @@ class FragmentMemoryUsage : Fragment(){
         memInfoTextView.text = MemoryUsageService.getMemoryInfo(requireContext())
     }
     private fun setProcessStatsInfo() {
-        processStatsTextView.text = ProcessStatsService.getRunningProcessesStats()
+        var processHelper = ProcessHelperService()
+        processStatsTextView.text =  processHelper.getProcessesStats()
     }
 }
